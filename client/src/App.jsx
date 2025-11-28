@@ -12,6 +12,7 @@ import ViewApplications from "./pages/ViewApplications";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminAuth from "./pages/AdminAuth";
+import Profile from "./pages/Profile";
 import "quill/dist/quill.snow.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin-auth" element={<AdminAuth />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/apply-job/:id" element={<ApplyJob />} />
         <Route path="/applications" element={<Applications />} />
 

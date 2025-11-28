@@ -23,7 +23,9 @@ const Navbar = () => {
       <Link to="/dashboard" className="bg-gray-800 text-white px-4 py-2 rounded">
         Dashboard
       </Link>
-      <p>Hi, {userData?.name?.split(" ")[0] || "User"}</p>
+      <Link to="/profile" className="text-gray-700">
+        Hi, {userData?.name?.split(" ")[0] || "User"}
+      </Link>
       <button onClick={handleLogout} className="text-red-500 text-sm">
         Logout
       </button>
@@ -60,7 +62,13 @@ const Navbar = () => {
       >
         Dashboard
       </Link>
-      <span className="text-gray-700">Hi, {userData?.name || "User"}</span>
+      <Link
+        to="/profile"
+        className="text-gray-700"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        Hi, {userData?.name || "User"}
+      </Link>
       <button className="text-red-500 text-left" onClick={handleLogout}>
         Logout
       </button>

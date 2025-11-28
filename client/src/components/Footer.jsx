@@ -9,7 +9,7 @@ const Footer = () => {
           <span className="font-bold text-xl ml-2">NaukriVerse</span>
         </div>
         <p className='w-full sm:flex-1 border-1 border-gray-400 pl-0 sm:pl-4 text-xs sm:text-sm text-gray-500 mb-2 sm:mb-0'>
-            Copyright @NaukriVerse.com | All rights reserved.
+            Copyright @dhruvjain527@gmail.com | All rights reserved.
         </p>
         <div className='flex gap-2.5 justify-center sm:justify-end w-full sm:w-auto'>
             <img width={32} src={assets.facebook_icon} alt="" />

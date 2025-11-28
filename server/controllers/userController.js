@@ -117,3 +117,80 @@ export const updateUserResume = async (req, res) => {
     });
   }
 };
+
+// update user profile photo
+export const updateUserImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      return res.json({ success: false, message: "No image provided." });
+    }
+
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+      folder: "profile-images",
+      transformation: [{ width: 400, height: 400, crop: "fill", gravity: "face" }],
+    });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { image: uploadResponse.secure_url },
+      { new: true }
+    ).select("-password");
+
+    res.json({ success: true, message: "Profile photo updated.", user: updatedUser });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// update user profile details
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const allowedFields = [
+      "name",
+      "headline",
+      "location",
+      "mobileNumber",
+      "workStatus",
+      "gender",
+      "birthday",
+      "degree",
+      "institute",
+      "about",
+      "preferredJobType",
+      "availability",
+    ];
+
+    const updates = {};
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    if (!updatedUser) {
+      return res.json({ success: false, message: "User not found." });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully.",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

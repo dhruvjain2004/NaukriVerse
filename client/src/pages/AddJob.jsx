@@ -112,6 +112,14 @@ const AddJob = () => {
     }
   }, []);
 
+  if (!companyToken) {
+    return (
+      <div className="flex items-center justify-center h-[70vh] px-4 text-center">
+        <p className="text-xl sm:text-2xl">Please log in as a recruiter to add jobs.</p>
+      </div>
+    );
+  }
+
   return (
     <form
       onSubmit={onSubmitHandler}

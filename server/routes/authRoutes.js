@@ -5,6 +5,8 @@ import {
   loginUser,
   registerAdmin,
   registerUser,
+  requestOtp,
+  verifyOtp,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -12,6 +14,8 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/google", googleAuth);
+router.post("/request-otp", requestOtp);
+router.post("/verify-otp", verifyOtp);
 
 router.post("/admin/register", registerAdmin);
 router.post("/admin/login", loginAdmin);

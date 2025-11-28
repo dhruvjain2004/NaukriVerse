@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import User from "../models/user.js";
 import Admin from "../models/Admin.js";
 import generateToken from "../utils/generateToken.js";
+import { sendOtpEmail } from "../utils/mailer.js";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = googleClientId ? new OAuth2Client(googleClientId) : null;
@@ -13,6 +14,15 @@ const buildUserPayload = (user) => ({
   email: user.email,
   mobileNumber: user.mobileNumber,
   workStatus: user.workStatus,
+  headline: user.headline,
+  location: user.location,
+  gender: user.gender,
+  birthday: user.birthday,
+  degree: user.degree,
+  institute: user.institute,
+  about: user.about,
+  preferredJobType: user.preferredJobType,
+  availability: user.availability,
   resume: user.resume,
   image: user.image,
 });
@@ -121,6 +131,83 @@ export const googleAuth = async (req, res) => {
     res.json({
       success: true,
       message: "Authenticated with Google.",
+      token: generateToken(user._id),
+      user: buildUserPayload(user),
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const requestOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.json({ success: false, message: "Email is required." });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "No account found with this email." });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    user.otpCode = hashedOtp;
+    user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`OTP for ${email}: ${otp}`);
+    }
+
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await sendOtpEmail(email, otp);
+    }
+
+    res.json({
+      success: true,
+      message: "OTP sent to your registered email.",
+      otp: process.env.NODE_ENV === "development" ? otp : undefined,
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.json({ success: false, message: "Email and OTP are required." });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.otpCode || !user.otpExpiry) {
+      return res.json({ success: false, message: "OTP not requested or already used." });
+    }
+
+    if (user.otpExpiry < new Date()) {
+      user.otpCode = "";
+      user.otpExpiry = null;
+      await user.save();
+      return res.json({ success: false, message: "OTP has expired. Please request a new one." });
+    }
+
+    const isValidOtp = await bcrypt.compare(otp, user.otpCode);
+    if (!isValidOtp) {
+      return res.json({ success: false, message: "Invalid OTP. Please try again." });
+    }
+
+    user.otpCode = "";
+    user.otpExpiry = null;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Logged in with OTP.",
       token: generateToken(user._id),
       user: buildUserPayload(user),
     });
