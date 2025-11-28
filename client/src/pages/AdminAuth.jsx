@@ -54,7 +54,7 @@ const AdminAuth = () => {
       <div className="min-h-[70vh] bg-gray-50 flex items-center justify-center py-12 px-4">
         <div className="bg-white shadow-xl rounded-2xl w-full max-w-lg p-10 text-center">
           <h2 className="text-3xl font-semibold text-gray-800">Our Services</h2>
-          <p className="text-gray-500 mt-2">Welcomes You</p>
+          <p className="text-gray-500 mt-2">Welcomes You ADMIN</p>
           <p className="text-sm text-gray-500 mt-6">Enter your login credentials</p>
 
           {adminInfo ? (
