@@ -28,9 +28,9 @@ const buildUserPayload = (user) => ({
 });
 
 export const registerUser = async (req, res) => {
-  const { fullName, email, password, workStatus } = req.body;
+  const { fullName, email, password, mobileNumber, workStatus } = req.body;
 
-  if (!fullName || !email || !password || !workStatus) {
+  if (!fullName || !email || !password || !mobileNumber || !workStatus) {
     return res.json({ success: false, message: "Please fill in all required fields." });
   }
 
@@ -47,6 +47,7 @@ export const registerUser = async (req, res) => {
       name: fullName,
       email,
       password: hashedPassword,
+      mobileNumber,
       workStatus,
     });
 
