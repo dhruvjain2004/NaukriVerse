@@ -15,7 +15,6 @@ const Register = () => {
     fullName: "",
     email: "",
     password: "",
-    mobileNumber: "",
     workStatus: "experienced",
   });
   const [loading, setLoading] = useState(false);
@@ -128,18 +127,7 @@ const Register = () => {
                   required
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Mobile Number*</label>
-                <input
-                  type="tel"
-                  name="mobileNumber"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="Mobile Number"
-                  className="mt-2 w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+
               <div>
                 <label className="text-sm font-medium text-gray-700">Work Status*</label>
                 <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
