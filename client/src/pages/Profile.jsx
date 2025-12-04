@@ -5,6 +5,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { states, getCitiesByState } from "../data/indianStatesCities";
 
 const initialState = {
   name: "",
@@ -28,6 +29,8 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const photoInputRef = useRef(null);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
   useEffect(() => {
     if (!userToken) {
@@ -37,6 +40,37 @@ const Profile = () => {
 
   useEffect(() => {
     if (userData) {
+      const location = userData.location || "";
+      let parsedState = "";
+      let parsedCity = "";
+      
+      // Parse existing location if it's in "City, State" format
+      if (location) {
+        const parts = location.split(",").map(p => p.trim());
+        if (parts.length >= 2) {
+          parsedCity = parts[0];
+          const stateName = parts.slice(1).join(", ");
+          if (states.includes(stateName)) {
+            parsedState = stateName;
+          }
+        } else if (states.includes(location)) {
+          parsedState = location;
+        } else {
+          // Try to find if location matches any city
+          for (const state of states) {
+            const cities = getCitiesByState(state);
+            if (cities.includes(location)) {
+              parsedState = state;
+              parsedCity = location;
+              break;
+            }
+          }
+        }
+      }
+      
+      setSelectedState(parsedState);
+      setSelectedCity(parsedCity);
+      
       setFormValues((prev) => ({
         ...prev,
         name: userData.name || "",
@@ -75,6 +109,23 @@ const Profile = () => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleStateChange = (e) => {
+    const state = e.target.value;
+    setSelectedState(state);
+    setSelectedCity(""); // Reset city when state changes
+    // Update location in formValues
+    const location = state ? (selectedCity ? `${selectedCity}, ${state}` : state) : "";
+    setFormValues((prev) => ({ ...prev, location }));
+  };
+
+  const handleCityChange = (e) => {
+    const city = e.target.value;
+    setSelectedCity(city);
+    // Update location in formValues as "City, State"
+    const location = city && selectedState ? `${city}, ${selectedState}` : selectedState || "";
+    setFormValues((prev) => ({ ...prev, location }));
+  };
+
   const initials = useMemo(() => {
     const baseName = (formValues.name || userData?.name || "Candidate").trim();
     if (!baseName) return "CA";
@@ -90,7 +141,17 @@ const Profile = () => {
     if (saving) return;
     try {
       setSaving(true);
-      const { data } = await axios.patch(`${backendUrl}/api/users/profile`, formValues, {
+      // Ensure location is properly formatted
+      const location = selectedCity && selectedState 
+        ? `${selectedCity}, ${selectedState}` 
+        : selectedState || formValues.location || "";
+      
+      const updatedFormValues = {
+        ...formValues,
+        location
+      };
+      
+      const { data } = await axios.patch(`${backendUrl}/api/users/profile`, updatedFormValues, {
         headers: { Authorization: `Bearer ${userToken}` },
       });
       if (data.success) {
@@ -207,7 +268,7 @@ const Profile = () => {
                   {formValues.location ? (
                     <p>{formValues.location}</p>
                   ) : (
-                    <button type="button" className="text-blue-600 font-medium" onClick={() => focusField("profile-location")}>
+                    <button type="button" className="text-blue-600 font-medium" onClick={() => focusField("profile-location-state")}>
                       Add location
                     </button>
                   )}
@@ -273,15 +334,41 @@ const Profile = () => {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700">Location</label>
-                      <input
-                        id="profile-location"
-                        type="text"
-                        name="location"
-                        value={formValues.location}
-                        onChange={handleChange}
-                        className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="City, Country"
-                      />
+                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-gray-500 mb-1 block">State</label>
+                          <select
+                            id="profile-location-state"
+                            value={selectedState}
+                            onChange={handleStateChange}
+                            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select State</option>
+                            {states.map((state) => (
+                              <option key={state} value={state}>
+                                {state}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500 mb-1 block">City</label>
+                          <select
+                            id="profile-location-city"
+                            value={selectedCity}
+                            onChange={handleCityChange}
+                            disabled={!selectedState}
+                            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">Select City</option>
+                            {selectedState && getCitiesByState(selectedState).map((city) => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700">Mobile number</label>
