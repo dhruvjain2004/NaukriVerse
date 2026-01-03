@@ -119,7 +119,7 @@ const Navbar = () => {
           onClick={() => navigate("/")}
         >
           <img src={assets.vite_logo} alt="NaukriVerse Symbol" height={40} width={40} />
-          <span className="font-bold text-xl ml-2">NaukriVerse</span>
+          <span className="font-bold text-xl ml-2">JobMate AI</span>
         </div>
         {/* Hamburger for mobile */}
         <button className="sm:hidden ml-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>

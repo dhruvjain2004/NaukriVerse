@@ -23,7 +23,7 @@ const Hero = () => {
     <div className="container 2xl:px-20 mx-auto my-6 sm:my-10 ">
       <div className="bg-gradient-to-r from-purple-800 to-purple-950 text-white py-10 sm:py-16 text-center mx-2 rounded-xl">
         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium mb-4">
-          Over 10,000+ jobs to apply
+          Multiple Jobs To Apply 
         </h2>
         <p className="mb-8 max-w-xl mx-auto text-xs sm:text-sm font-light px-2 sm:px-5">
           Your Next Big Career Move Starts Right Here - Explore the Best Job

@@ -146,7 +146,7 @@ const JobListing = () => {
 
         {/* 1. Category Filter */}
         <div className={showFilter ? "" : "max-lg:hidden"}>
-          <h4 className="font-medium text-base sm:text-lg py-4">Search by Categories</h4>
+          <h4 className="font-medium text-base sm:text-lg py-4">Search by Skills</h4>
           <ul className="space-y-2 sm:space-y-4 text-gray-600 text-xs sm:text-base">
             {JobCategories.map((category, index) => (
               <li className="flex gap-3 items-center" key={index}>

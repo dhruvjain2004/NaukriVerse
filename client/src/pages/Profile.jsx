@@ -277,11 +277,11 @@ const Profile = () => {
                   <span>{formValues.mobileNumber || "Add phone"}</span>
                   <span>{userData?.email}</span>
                 </div>
-                <div className="flex gap-4 text-sm text-blue-600">
+                {/* <div className="flex gap-4 text-sm text-blue-600">
                   <button type="button" onClick={() => focusField("profile-birthday")}>
                     + Add birthday
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
             <div className="flex flex-col justify-center items-center w-full lg:w-80 text-center text-gray-500">
