@@ -1,6 +1,7 @@
 import Job from "../models/Job.js";
 import User from "../models/user.js";
 import JobApplication from "../models/JobApplication.js";
+import Notification from "../models/Notification.js";
 import { v2 as cloudinary } from "cloudinary";
 
 //Get user data
@@ -186,6 +187,74 @@ export const updateUserProfile = async (req, res) => {
       success: true,
       message: "Profile updated successfully.",
       user: updatedUser,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Get user's new job notifications
+export const getUserNotifications = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const notifications = await Notification.find({ userId })
+      .populate("jobId", "title description location category level salary")
+      .populate("companyId", "name email image")
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    if (!notifications) {
+      return res.json({
+        success: false,
+        message: "No notifications found.",
+      });
+    }
+
+    res.json({
+      success: true,
+      notifications,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Mark notification as read
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    const userId = req.user._id;
+
+    const notification = await Notification.findById(notificationId);
+
+    if (!notification) {
+      return res.json({
+        success: false,
+        message: "Notification not found.",
+      });
+    }
+
+    if (notification.userId.toString() !== userId.toString()) {
+      return res.json({
+        success: false,
+        message: "Unauthorized access.",
+      });
+    }
+
+    notification.read = true;
+    await notification.save();
+
+    res.json({
+      success: true,
+      message: "Notification marked as read.",
+      notification,
     });
   } catch (error) {
     res.json({

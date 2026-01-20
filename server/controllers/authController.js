@@ -28,14 +28,24 @@ const buildUserPayload = (user) => ({
 });
 
 export const registerUser = async (req, res) => {
-  const { fullName, email, password, mobileNumber, workStatus } = req.body;
+  const { fullName, email, password, workStatus } = req.body;
 
-  if (!fullName || !email || !password || !mobileNumber || !workStatus) {
-    return res.json({ success: false, message: "Please fill in all required fields." });
+  // Validate all required fields
+  if (!fullName || !fullName.trim()) {
+    return res.json({ success: false, message: "Full name is required." });
+  }
+  if (!email || !email.trim()) {
+    return res.json({ success: false, message: "Email is required." });
+  }
+  if (!password || !password.trim()) {
+    return res.json({ success: false, message: "Password is required." });
+  }
+  if (!workStatus || !workStatus.trim()) {
+    return res.json({ success: false, message: "Work status is required." });
   }
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.json({ success: false, message: "An account with this email already exists." });
     }
@@ -44,10 +54,9 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
-      name: fullName,
-      email,
+      name: fullName.trim(),
+      email: email.toLowerCase(),
       password: hashedPassword,
-      mobileNumber,
       workStatus,
     });
 

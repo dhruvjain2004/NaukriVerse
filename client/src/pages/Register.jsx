@@ -15,7 +15,6 @@ const Register = () => {
     fullName: "",
     email: "",
     password: "",
-    mobileNumber: "",
     workStatus: "experienced",
   });
   const [loading, setLoading] = useState(false);
@@ -32,6 +31,13 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Frontend validation
+    if (!formData.fullName || !formData.email || !formData.password || !formData.workStatus) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     if (loading) return;
     setLoading(true);
     try {
@@ -124,18 +130,6 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a password for your account"
-                  className="mt-2 w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Mobile Number*</label>
-                <input
-                  type="tel"
-                  name="mobileNumber"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="Mobile Number"
                   className="mt-2 w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />

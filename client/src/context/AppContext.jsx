@@ -25,6 +25,7 @@ export const AppContextProvider = (props) => {
   const [userToken, setUserToken] = useState(() => localStorage.getItem("userToken"));
   const [userData, setUserData] = useState(null);
   const [userApplications, setUserApplications] = useState([]);
+  const [userNotifications, setUserNotifications] = useState([]);
 
   const fetchUserData = async () => {
     if (!userToken) return;
@@ -55,6 +56,20 @@ export const AppContextProvider = (props) => {
       }
     } catch (error) {
       toast.error(error.message);
+    }
+  };
+
+  const fetchUserNotifications = async () => {
+    if (!userToken) return;
+    try {
+      const { data } = await axios.get(backendUrl + "/api/users/new-job-notifications", {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+      if (data.success) {
+        setUserNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
     }
   };
 
@@ -92,6 +107,7 @@ export const AppContextProvider = (props) => {
     setUserToken(null);
     setUserData(null);
     setUserApplications([]);
+    setUserNotifications([]);
     localStorage.removeItem("userToken");
   };
 
@@ -114,9 +130,11 @@ export const AppContextProvider = (props) => {
       localStorage.setItem("userToken", userToken);
       fetchUserData();
       fetchUserApplications();
+      fetchUserNotifications();
     } else {
       setUserData(null);
       setUserApplications([]);
+      setUserNotifications([]);
     }
   }, [userToken]);
 
@@ -140,6 +158,9 @@ export const AppContextProvider = (props) => {
     setUserApplications,
     fetchUserData,
     fetchUserApplications,
+    fetchUserNotifications,
+    userNotifications,
+    setUserNotifications,
     userToken,
     setUserToken,
     logoutUser,

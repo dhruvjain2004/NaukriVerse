@@ -4,6 +4,8 @@ import { v2 as cloudinary } from "cloudinary";
 import generateToken from "../utils/generateToken.js";
 import Job from "../models/Job.js";
 import JobApplication from "../models/JobApplication.js";
+import Notification from "../models/Notification.js";
+import User from "../models/user.js";
 // Register a new company
 export const registerCompany = async (req, res) => {
   const { name, email, password } = req.body;
@@ -114,7 +116,25 @@ export const postJob = async (req, res) => {
       category,
     });
     await newJob.save();
-    res.json({ success: true, newJob , message:'Job Posted Successfully' });
+
+    // Create notifications for all users
+    const allUsers = await User.find().select("_id");
+    const company = await Company.findById(companyId).select("name");
+
+    const notifications = allUsers.map((user) => ({
+      userId: user._id,
+      jobId: newJob._id,
+      companyId: companyId,
+      jobTitle: title,
+      jobRole: category || title,
+      companyName: company.name,
+      read: false,
+      createdAt: new Date(),
+    }));
+
+    await Notification.insertMany(notifications);
+
+    res.json({ success: true, newJob, message: "Job Posted Successfully" });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
